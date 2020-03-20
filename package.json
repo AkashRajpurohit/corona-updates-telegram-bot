@@ -4,7 +4,8 @@
   "description": "This is a telegram bot which will provides updates about the corona virus impact in different states of India.",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
   },
   "repository": {
     "type": "git",
@@ -24,5 +25,8 @@
     "request": "^2.88.2",
     "request-promise": "^4.2.5",
     "telegraf": "^3.36.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
   }
 }
