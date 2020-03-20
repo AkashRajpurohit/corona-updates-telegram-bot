@@ -1,4 +1,5 @@
 const cheerio = require('cheerio')
+const moment = require('moment')
 
 const getRawBody = require('./getRawBody')
 
@@ -58,7 +59,8 @@ module.exports = async () => {
 
         return {
             stateData,
-            documentLinks: newDocumentPdfLinks
+            documentLinks: newDocumentPdfLinks,
+            lastUpdatedAt: moment().format('DD/MM/YYYY LT')
         }
 
     } catch(e) {
@@ -67,7 +69,7 @@ module.exports = async () => {
         } else {
             console.log("Error: ", e)
         }
-        
+
         return {
             stateData: [],
             documentLinks: []
