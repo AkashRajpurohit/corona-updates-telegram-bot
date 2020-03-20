@@ -1,0 +1,26 @@
+{
+  "name": "corona-updates-telegram-bot",
+  "version": "1.0.0",
+  "description": "This is a telegram bot which will provides updates about the corona virus impact in different states of India.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AkashRajpurohit/corona-updates-telegram-bot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AkashRajpurohit/corona-updates-telegram-bot/issues"
+  },
+  "homepage": "https://github.com/AkashRajpurohit/corona-updates-telegram-bot#readme",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "dotenv": "^8.2.0",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.5"
+  }
+}
