@@ -35,9 +35,14 @@ module.exports = (data) => {
         for(let j = 0; j < data[i].length; j++) {
             output += `**${title[j]}:** __${data[i][j]}__ \n\n`
         }
-        if(i !== data.length - 2) {
-            output += '---------------------------------------------\n\n'
-        }
+        
+        output += '---------------------------------------------\n\n'
+    }
+
+    output += 'Total All Over India \n\n'
+
+    for(let i = 1; i < data[data.length - 1].length; i++) {
+        output += `**${title[i]}:** __${data[data.length - 1][i]}__ \n\n`
     }
 
     return output
