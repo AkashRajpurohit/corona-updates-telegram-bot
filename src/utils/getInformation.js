@@ -11,15 +11,15 @@ module.exports = async () => {
         const html = await getRawBody(process.env.DATA_BASE_URL)
         const $ = cheerio.load(html)
 
-        const tableHeadRow = $('div.table-responsive table thead tr')
-        const tableHeader = []
-        tableHeadRow.children().each((index, row) => {
-            if(index !== 0) {
-                tableHeader.push($(row).text().trim())
-            } 
-        })
+        // const tableHeadRow = $('div.table-responsive table thead tr')
+        // const tableHeader = []
+        // tableHeadRow.children().each((index, row) => {
+        //     if(index !== 0) {
+        //         tableHeader.push($(row).text().trim())
+        //     } 
+        // })
 
-        stateData.push(tableHeader)
+        // stateData.push(tableHeader)
 
         const tableBody = $('div.table-responsive table tbody')
         
@@ -60,7 +60,7 @@ module.exports = async () => {
         return {
             stateData,
             documentLinks: newDocumentPdfLinks,
-            lastUpdatedAt: moment().format('DD/MM/YYYY LT')
+            lastUpdatedAt: moment().format()
         }
 
     } catch(e) {
