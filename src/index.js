@@ -6,6 +6,9 @@ const moment = require('moment')
 
 const getInformation = require('./utils/getInformation')
 const getStateInformationInMd = require('./utils/getStateInformationInMd')
+const addUserToDB = require('./utils/addUserToDB')
+
+require('./utils/createDbDir')()
 
 let cache = {}
 
@@ -24,7 +27,10 @@ const getData = async () => {
 
 const bot = new Telegraf(process.env.TELEGRAM_TOKEN)
 
-bot.start(({ reply }) => reply('Welcome! Please use the /help command to check the features provided by me'))
+bot.start(({ reply, message: { from: { username, is_bot } } }) => {
+    addUserToDB(username, is_bot)
+    return reply('Welcome! Please use the /help command to check the features provided by me')
+})
 
 bot.help(({ reply }) => reply('Use /info to check the latest information regarding the Covid19 Virus in India \nUse /dev to know more about the developer'))
 
