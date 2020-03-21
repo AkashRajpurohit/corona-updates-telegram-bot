@@ -26,7 +26,7 @@ const bot = new Telegraf(process.env.TELEGRAM_TOKEN)
 
 bot.start((ctx) => ctx.reply('Welcome! Please use the /help command to check the features provided by me'))
 
-bot.help((ctx) => ctx.reply('List features here in depth'))
+bot.help((ctx) => ctx.reply('Use /info to check the latest information regarding the Covid19 Virus in India \nUse /dev to know more about the developer'))
 
 bot.command('/info', async (ctx) => {
     return ctx.reply('What do you want to view', Markup
@@ -40,6 +40,12 @@ bot.command('/info', async (ctx) => {
     )
 })
 
+bot.command('dev', (ctx) => {
+    ctx.replyWithMarkdown(`
+        Hello, I'm Akash Rajpurohit.\nYou can find me at: [https://t.me/AkashRajpurohit](https://t.me/AkashRajpurohit)\n\nOther Links:\n\nWebsite: [https://akashwho.codes](https://akashwho.codes)\nGithub: [https://github.com/AkashRajpurohit](https://github.com/AkashRajpurohit)\nLinkedIn: [https://linkedin.com/in/AkashRajpurohit](https://linkedin.com/in/AkashRajpurohit)
+    `)
+})
+
 bot.hears('📊 Current Situation in India', async (ctx) => {
     const { stateData } = await getData()
     const output = getStateInformationInMd(stateData)
@@ -48,7 +54,7 @@ bot.hears('📊 Current Situation in India', async (ctx) => {
 
 bot.hears('📰 New Articles Shared by Government', async (ctx) => {
     const { documentLinks } = await getData()
-    
+
     const docTitles = documentLinks.map((doc, index) => `${index + 1}. ${doc.title}`)
 
     return ctx.reply('Which article?', Extra.markup(
