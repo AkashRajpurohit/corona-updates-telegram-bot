@@ -24,12 +24,12 @@ const getData = async () => {
 
 const bot = new Telegraf(process.env.TELEGRAM_TOKEN)
 
-bot.start((ctx) => ctx.reply('Welcome! Please use the /help command to check the features provided by me'))
+bot.start(({ reply }) => reply('Welcome! Please use the /help command to check the features provided by me'))
 
-bot.help((ctx) => ctx.reply('Use /info to check the latest information regarding the Covid19 Virus in India \nUse /dev to know more about the developer'))
+bot.help(({ reply }) => reply('Use /info to check the latest information regarding the Covid19 Virus in India \nUse /dev to know more about the developer'))
 
-bot.command('/info', async (ctx) => {
-    return ctx.reply('What do you want to view', Markup
+bot.command('/info', async ({ reply }) => {
+    return reply('What do you want to view', Markup
         .keyboard([
             ['📊 Current Situation in India'],
             ['📰 New Articles Shared by Government']
@@ -40,41 +40,41 @@ bot.command('/info', async (ctx) => {
     )
 })
 
-bot.command('dev', (ctx) => {
-    ctx.replyWithMarkdown(`
+bot.command('dev', ({ replyWithMarkdown }) => {
+    replyWithMarkdown(`
         Hello, I'm Akash Rajpurohit.\nYou can find me at: [https://t.me/AkashRajpurohit](https://t.me/AkashRajpurohit)\n\nOther Links:\n\nWebsite: [https://akashwho.codes](https://akashwho.codes)\nGithub: [https://github.com/AkashRajpurohit](https://github.com/AkashRajpurohit)\nLinkedIn: [https://linkedin.com/in/AkashRajpurohit](https://linkedin.com/in/AkashRajpurohit)
     `)
 })
 
-bot.hears('📊 Current Situation in India', async (ctx) => {
+bot.hears('📊 Current Situation in India', async ({ replyWithMarkdown }) => {
     const { stateData } = await getData()
     const output = getStateInformationInMd(stateData)
-    ctx.replyWithMarkdown(output)
+    replyWithMarkdown(output)
 })
 
-bot.hears('📰 New Articles Shared by Government', async (ctx) => {
+bot.hears('📰 New Articles Shared by Government', async ({ reply }) => {
     const { documentLinks } = await getData()
 
     const docTitles = documentLinks.map((doc, index) => `${index + 1}. ${doc.title}`)
 
-    return ctx.reply('Which article?', Extra.markup(
+    return reply('Which article?', Extra.markup(
         Markup.keyboard(docTitles, {
           wrap: (_, index) => (index + 1) / 2
         })
-      ))
+    ))
 })
 
-bot.hears(/(\d+)/, async (ctx) => {
+bot.hears(/(\d+)/, async ({ replyWithDocument }) => {
     const { documentLinks } = await getData()
 
-    const msgFromUser = ctx.message.text.slice(3)
+    const msgFromUser = ctx.message.text.slice(3).trim()
 
-    if(msgFromUser.trim() === "") return
+    if(msgFromUser === "") return
 
     const index = ctx.match[0] - 1
 
     if(documentLinks[index].title === msgFromUser) {
-        ctx.replyWithDocument(documentLinks[index].link)
+        replyWithDocument(documentLinks[index].link)
     }
 })
 
