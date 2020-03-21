@@ -46,8 +46,30 @@ bot.hears('📊 Current Situation in India', async (ctx) => {
     ctx.replyWithMarkdown(output)
 })
 
-bot.hears('📰 New Articles Shared by Government', (ctx) => {
-    return ctx.reply('send Articles')
+bot.hears('📰 New Articles Shared by Government', async (ctx) => {
+    const { documentLinks } = await getData()
+    
+    const docTitles = documentLinks.map((doc, index) => `${index + 1}. ${doc.title}`)
+
+    return ctx.reply('Which article?', Extra.markup(
+        Markup.keyboard(docTitles, {
+          wrap: (_, index) => (index + 1) / 2
+        })
+      ))
+})
+
+bot.hears(/(\d+)/, async (ctx) => {
+    const { documentLinks } = await getData()
+
+    const msgFromUser = ctx.message.text.slice(3)
+
+    if(msgFromUser.trim() === "") return
+
+    const index = ctx.match[0] - 1
+
+    if(documentLinks[index].title === msgFromUser) {
+        ctx.replyWithDocument(documentLinks[index].link)
+    }
 })
 
 bot.catch((err) => console.log(err))
