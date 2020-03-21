@@ -70,14 +70,14 @@ bot.hears('📰 New Articles Shared by Government', async ({ reply }) => {
     ))
 })
 
-bot.hears(/(\d+)/, async ({ replyWithDocument }) => {
+bot.hears(/(\d+)/, async ({ replyWithDocument, message, match }) => {
     const { documentLinks } = await getData()
 
-    const msgFromUser = ctx.message.text.slice(3).trim()
+    const msgFromUser = message.text.slice(3).trim()
 
     if(msgFromUser === "") return
 
-    const index = ctx.match[0] - 1
+    const index = match[0] - 1
 
     if(documentLinks[index].title === msgFromUser) {
         replyWithDocument(documentLinks[index].link)
