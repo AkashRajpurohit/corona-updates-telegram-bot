@@ -15,7 +15,7 @@ let cache = {}
 const getData = async () => {
     if (
         Object.keys(cache).length == 0 ||
-        moment().diff(moment(cache['lastUpdatedAt']), 'minutes') > 15
+        moment().diff(moment(cache['lastUpdatedAt']), 'minutes') > 60
     ) {
         const results = await getInformation()
         cache = results
