@@ -52,18 +52,21 @@ bot.command('dev', ({ replyWithMarkdown }) => {
     `)
 })
 
-bot.hears('📊 Current Situation in India', async ({ replyWithMarkdown }) => {
+bot.hears('📊 Current Situation in India', async ({ replyWithMarkdown, reply }) => {
+    reply('Getting the latest data... Please wait')
     const { stateData } = await getData()
     const output = getStateInformationInMd(stateData)
     replyWithMarkdown(output)
 })
 
 bot.hears('📰 New Articles Shared by Government', async ({ reply }) => {
+    reply('Collecting all new articles by government... Please wait')
+
     const { documentLinks } = await getData()
 
     const docTitles = documentLinks.map((doc, index) => `${index + 1}. ${doc.title}`)
 
-    return reply('Which article?', Extra.markup(
+    return reply('Choose an article you wish to read', Extra.markup(
         Markup.keyboard(docTitles, {
           wrap: (_, index) => (index + 1) / 2
         })
