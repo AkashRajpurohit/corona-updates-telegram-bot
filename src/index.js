@@ -5,7 +5,7 @@ const Markup = require('telegraf/markup')
 const moment = require('moment')
 
 const getInformation = require('./utils/getInformation')
-const getStateInformationInMd = require('./utils/getStateInformationInMd')
+const getStateInformationInHTML = require('./utils/getStateInformationInHTML')
 const getLatestNews = require('./utils/getLatestNews')
 const getLatestNewsInHTML = require('./utils/getLatestNewsInHTML')
 const addUserToDB = require('./utils/addUserToDB')
@@ -70,20 +70,18 @@ bot.command('dev', ({ replyWithMarkdown }) => {
     `)
 })
 
-bot.hears('📊 Current Situation in India', async ({ replyWithMarkdown, reply }) => {
-    reply('Getting the latest data... Please wait')
+bot.hears('📊 Current Situation in India', async ({ replyWithHTML, reply }) => {
+    await reply('Getting the latest data... Please wait')
     const { stateData } = await getData()
-    const output = getStateInformationInMd(stateData)
-    replyWithMarkdown(output)
+    const output = getStateInformationInHTML(stateData)
+    
+    replyWithHTML(output)
 })
 
 bot.hears('📰 New Articles Shared by Government', async ({ reply }) => {
-    reply('Collecting all new articles by government... Please wait')
-
+    await reply('Collecting all new articles by government... Please wait')
     const { documentLinks } = await getData()
-
     const docTitles = documentLinks.map((doc, index) => `${index + 1}. ${doc.title}`)
-
     return reply('Choose an article you wish to read', Extra.markup(
         Markup.keyboard(docTitles, {
           wrap: (_, index) => (index + 1) / 2
