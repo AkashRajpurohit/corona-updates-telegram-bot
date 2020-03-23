@@ -1,10 +1,9 @@
 const cheerio = require('cheerio')
-const moment = require('moment')
 
 const getRawBody = require('./getRawBody')
 
 const isPdfLink = (link) => {
-    return link.slice(link.length - 4) === '.pdf' || link.slice(link.length - 3) === '.PDF'
+    return link.slice(link.length - 4) === '.pdf' || link.slice(link.length - 4) === '.PDF'
 }
 
 module.exports = async (page) => {
