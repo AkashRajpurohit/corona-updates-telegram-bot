@@ -7,7 +7,6 @@ const moment = require('moment')
 const getInformation = require('./utils/getInformation')
 const getStateInformationInHTML = require('./utils/getStateInformationInHTML')
 const getLatestNews = require('./utils/getLatestNews')
-const getLatestNewsInHTML = require('./utils/getLatestNewsInHTML')
 const addUserToDB = require('./utils/addUserToDB')
 const wait = require('./utils/wait')
 
@@ -94,8 +93,8 @@ bot.hears('📖 Read Latest News', async ({ reply, replyWithHTML }) => {
     const { articles } = await getNews()
 
     if(articles && articles.length > 0) {
-        const output = getLatestNewsInHTML(articles[0])
-        await replyWithHTML(output)
+        const url = articles[0].url
+        await replyWithHTML(url)
         await wait(2)
         
         await reply('Click next to see next news', Extra.HTML().markup((m) =>
@@ -130,8 +129,8 @@ bot.action(/.+/, async ({ answerCbQuery, reply, replyWithHTML, match }) => {
     const { articles } = await getNews()
 
     if(articleIndex < articles.length) {
-        const output = getLatestNewsInHTML(articles[articleIndex])
-        await replyWithHTML(output)
+        const url = articles[articleIndex].url
+        await replyWithHTML(url)
         await wait(2)
 
         if(articleIndex + 1 < articles.length) {
