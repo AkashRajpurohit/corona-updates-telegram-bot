@@ -48,5 +48,13 @@ If you encounter any problems feel free to open an [issue](https://github.com/Ak
 
 **Corona19 Updates (India)** is licensed under `MIT license`.
 
-## Visit My Portfolio
-[Akash Rajpurohit](https://akashwho.codes)
+## ✨ Credits
+* Website from where data is scraped - [Government of India](https://www.mohfw.gov.in/)
+* News Data from [NewsApi](https://newsapi.org/)
+* [Telegraf](https://telegraf.js.org/) for creating Bots in telegram
+
+## Find me here
+* [Website](https://akashwho.codes)
+* [Linkedin](https://www.linkedin.com/in/AkashRajpurohit)
+* [Instagram](https://www.instagram.com/akashwho.codes)
+* [Twitter](https://www.twitter.com/AkashWhoCodes)

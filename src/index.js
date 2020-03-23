@@ -6,11 +6,15 @@ const moment = require('moment')
 
 const getInformation = require('./utils/getInformation')
 const getStateInformationInMd = require('./utils/getStateInformationInMd')
+const getLatestNews = require('./utils/getLatestNews')
+const getLatestNewsInHTML = require('./utils/getLatestNewsInHTML')
 const addUserToDB = require('./utils/addUserToDB')
+const wait = require('./utils/wait')
 
 require('./utils/createDbDir')()
 
 let cache = {}
+let newsCache = {}
 
 const getData = async () => {
     if (
@@ -22,6 +26,19 @@ const getData = async () => {
         return results
     } else {
         return cache
+    }
+}
+
+const getNews = async () => {
+    if (
+        Object.keys(newsCache).length == 0 ||
+        moment().diff(moment(newsCache['lastUpdatedAt']), 'minutes') > 30
+    ) {
+        const results = await getLatestNews()
+        newsCache = results
+        return results
+    } else {
+        return newsCache
     }
 }
 
@@ -38,7 +55,8 @@ bot.command('/info', async ({ reply }) => {
     return reply('What do you want to view', Markup
         .keyboard([
             ['📊 Current Situation in India'],
-            ['📰 New Articles Shared by Government']
+            ['📰 New Articles Shared by Government'],
+            ['📖 Read Latest News']
         ])
         .oneTime()
         .resize()
@@ -73,6 +91,25 @@ bot.hears('📰 New Articles Shared by Government', async ({ reply }) => {
     ))
 })
 
+bot.hears('📖 Read Latest News', async ({ reply, replyWithHTML }) => {
+    await reply('Fetching latest news!')
+    const { articles } = await getNews()
+
+    if(articles && articles.length > 0) {
+        const output = getLatestNewsInHTML(articles[0])
+        await replyWithHTML(output)
+        await wait(2)
+        
+        await reply('Click next to see next news', Extra.HTML().markup((m) =>
+            m.inlineKeyboard([
+                m.callbackButton('Next', '1')
+            ])
+        ))
+    } else {
+        reply('Sorry, cannot find news at the moment. Try again later or report the problem to @AkashRajpurohit')
+    }
+})
+
 bot.hears(/(\d+)/, async ({ replyWithDocument, message, match }) => {
     const { documentLinks } = await getData()
 
@@ -84,6 +121,31 @@ bot.hears(/(\d+)/, async ({ replyWithDocument, message, match }) => {
 
     if(documentLinks[index].title === msgFromUser) {
         replyWithDocument(documentLinks[index].link)
+    }
+})
+
+bot.action(/.+/, async ({ answerCbQuery, reply, replyWithHTML, match }) => { 
+    const articleIndex = parseInt(match[0])
+
+    await answerCbQuery(`Loading next news`)
+
+    const { articles } = await getNews()
+
+    if(articleIndex < articles.length) {
+        const output = getLatestNewsInHTML(articles[articleIndex])
+        await replyWithHTML(output)
+        await wait(2)
+
+        if(articleIndex + 1 < articles.length) {
+
+            await reply('Click next to see next news', Extra.HTML().markup((m) =>
+                m.inlineKeyboard([
+                    m.callbackButton('Next', (articleIndex + 1).toString())
+                ])
+            ))
+        } else {
+            await reply('Finished')
+        }
     }
 })
 
