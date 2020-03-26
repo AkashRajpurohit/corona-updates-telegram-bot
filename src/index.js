@@ -5,7 +5,7 @@ const Markup = require('telegraf/markup')
 const moment = require('moment')
 
 const getInformation = require('./utils/getInformation')
-const getStateInformationInHTML = require('./utils/getStateInformationInHTML')
+const replyWithStateInformationInHTML = require('./utils/replyWithStateInformationInHTML')
 const getLatestNews = require('./utils/getLatestNews')
 const addUserToDB = require('./utils/addUserToDB')
 const wait = require('./utils/wait')
@@ -72,9 +72,8 @@ bot.command('dev', ({ replyWithMarkdown }) => {
 bot.hears('📊 Current Situation in India', async ({ replyWithHTML, reply }) => {
     await reply('Getting the latest data... Please wait')
     const { stateData } = await getData()
-    const output = getStateInformationInHTML(stateData)
-    
-    replyWithHTML(output)
+
+    await replyWithStateInformationInHTML(stateData, replyWithHTML)
 })
 
 bot.hears('📰 New Articles Shared by Government', async ({ reply }) => {

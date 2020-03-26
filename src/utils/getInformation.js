@@ -4,7 +4,7 @@ const _ = require('lodash')
 
 const getRawBody = require('./getRawBody')
 
-const getAllPdfLinksFromPage = require('./getAllPdfLinksFromPage')
+const isPdfLink = require('./isPdfLink')
 
 module.exports = async () => {
     const stateData = []
@@ -32,20 +32,22 @@ module.exports = async () => {
             stateData.push(perStateData)
         })
 
-        let allMenuLinks = []
+        let allPdfLinksOnPage = [];
 
-        $('.menu .menu-ee .dropdown').each((_, button) => {
-            allMenuLinks.push($(button).find('.dropbtn a').attr('href'))
+        $('a').each((_ ,link) => {
+            const linkAttr = $(link).attr('href')
+            if(isPdfLink(linkAttr)) {
+                const linkTitle = $(link).text().trim()
+
+                allPdfLinksOnPage.push({
+                    link: linkAttr,
+                    title: linkTitle
+                })
+            }
         })
 
-        for(let page of allMenuLinks) {
-            const allPdfLinksOnPage = await getAllPdfLinksFromPage(page)
-            
-            newDocumentPdfLinks.push(...allPdfLinksOnPage)
-        }
-
-        newDocumentPdfLinks = _.uniqBy(newDocumentPdfLinks, 'link')
-
+        newDocumentPdfLinks = _.uniqBy(allPdfLinksOnPage, 'link')
+        
         return {
             stateData,
             documentLinks: newDocumentPdfLinks,

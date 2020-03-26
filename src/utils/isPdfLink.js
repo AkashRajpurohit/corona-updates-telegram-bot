@@ -1,0 +1,1 @@
+module.exports = (link) => link.slice(link.length - 4) === '.pdf' || link.slice(link.length - 4) === '.PDF'
