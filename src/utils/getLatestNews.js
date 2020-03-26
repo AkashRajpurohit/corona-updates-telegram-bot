@@ -7,7 +7,7 @@ module.exports = async () => {
             uri: 'http://newsapi.org/v2/top-headlines/',
             qs: {
                 q: 'corona',
-                country: 'in',
+                sources: 'google-news-in',
                 apiKey: process.env.NEWS_API_KEY,
             },
             headers: {
