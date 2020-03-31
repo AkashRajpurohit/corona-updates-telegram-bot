@@ -14,13 +14,30 @@ module.exports = async () => {
         const html = await getRawBody(process.env.DATA_BASE_URL)
         const $ = cheerio.load(html)
 
-        const tableBody = $('div.content div.table-responsive table tbody')
+        const table = $('div.content div.table-responsive table')
+
+        const tableHead = $(table).find('thead')
+
+        tableHead.children().each((_, elem) => {
+            const titles = []
+            const rows = $(elem).find('th')
+
+            rows.each((i, row) => {
+                if(i !== 0) {
+                    titles.push($(row).text().trim())
+                } 
+            })
+
+            stateData.push(titles)
+        })
+
+        const tableBody = $(table).find('tbody')
         
         tableBody.children().each((_, element) => {
             const perStateData = []
             const rows = $(element).find('td')
 
-            if(rows.length === 5) {
+            if(rows.length === stateData[0].length) {
                 perStateData.push("Total number of confirmed cases in India")
             }
             rows.each((i, row) => {
@@ -29,7 +46,9 @@ module.exports = async () => {
                 } 
             })
 
-            stateData.push(perStateData)
+            if(perStateData.length !== 0) {
+                stateData.push(perStateData)
+            }
         })
 
         let allPdfLinksOnPage = [];
