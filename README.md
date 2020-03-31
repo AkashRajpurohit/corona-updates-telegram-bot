@@ -53,7 +53,7 @@ If you encounter any problems feel free to open an [issue](https://github.com/Ak
 * News Data from [NewsApi](https://newsapi.org/)
 * [Telegraf](https://telegraf.js.org/) for creating Bots in telegram
 
-## Find me here
+## 👦🏼 Find me here
 * [Website](https://akashwho.codes)
 * [Linkedin](https://www.linkedin.com/in/AkashRajpurohit)
 * [Instagram](https://www.instagram.com/akashwho.codes)
