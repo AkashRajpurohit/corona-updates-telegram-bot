@@ -8,6 +8,7 @@ const getInformation = require('./utils/getInformation')
 const replyWithStateInformationInHTML = require('./utils/replyWithStateInformationInHTML')
 const getLatestNews = require('./utils/getLatestNews')
 const addUserToDB = require('./utils/addUserToDB')
+const acknowledgeAdmin = require('./utils/acknowlegdeAdmin')
 const wait = require('./utils/wait')
 
 require('./utils/createDbDir')()
@@ -41,17 +42,29 @@ const getNews = async () => {
     }
 }
 
+const shouldAcknowledgeAdmin = (ctx, command) => {
+    const { message : { chat, from } } = ctx
+    const { username, is_bot } = from
+    const { id } = chat
+
+    if(id.toString() !== process.env.ADMIN_CHAT_ID && username !== 'AkashRajpurohit') {
+        addUserToDB(username, is_bot)
+        acknowledgeAdmin(username, command)
+    }
+}
+
 const bot = new Telegraf(process.env.TELEGRAM_TOKEN)
 
-bot.start(({ reply, message: { from: { username, is_bot } } }) => {
-    addUserToDB(username, is_bot)
-    return reply('Welcome! Please use the /help command to check the features provided by me')
+bot.start(async (ctx) => {
+    await ctx.reply('Welcome! Please use the /help command to check the features provided by me')
+
+    shouldAcknowledgeAdmin(ctx, '/start')
 })
 
 bot.help(({ reply }) => reply('Use /info to check the latest information regarding the Covid19 Virus in India \nUse /dev to know more about the developer'))
 
-bot.command('/info', async ({ reply }) => {
-    return reply('What do you want to view', Markup
+bot.command('/info', async (ctx) => {
+    await ctx.reply('What do you want to view', Markup
         .keyboard([
             ['📊 Current Situation in India'],
             ['📰 New Articles Shared by Government'],
@@ -61,49 +74,60 @@ bot.command('/info', async ({ reply }) => {
         .resize()
         .extra()
     )
+
+    shouldAcknowledgeAdmin(ctx, '/info')
 })
 
-bot.command('dev', ({ replyWithMarkdown }) => {
-    replyWithMarkdown(`
+bot.command('dev', async (ctx) => {
+    await ctx.replyWithMarkdown(`
         Hello, I'm Akash Rajpurohit.\nYou can find me at: [https://t.me/AkashRajpurohit](https://t.me/AkashRajpurohit)\n\nOther Links:\n\nWebsite: [https://akashwho.codes](https://akashwho.codes)\nGithub: [https://github.com/AkashRajpurohit](https://github.com/AkashRajpurohit)\nLinkedIn: [https://linkedin.com/in/AkashRajpurohit](https://linkedin.com/in/AkashRajpurohit)
     `)
+
+    shouldAcknowledgeAdmin(ctx, '/dev')
 })
 
-bot.hears('📊 Current Situation in India', async ({ replyWithHTML, reply }) => {
-    await reply('Getting the latest data... Please wait')
+bot.hears('📊 Current Situation in India', async (ctx) => {
+    await ctx.reply('Getting the latest data... Please wait')
     const { stateData } = await getData()
 
-    await replyWithStateInformationInHTML(stateData, replyWithHTML)
+    await replyWithStateInformationInHTML(stateData, ctx.replyWithHTML)
+
+    shouldAcknowledgeAdmin(ctx, '📊 Current Situation in India')
 })
 
-bot.hears('📰 New Articles Shared by Government', async ({ reply }) => {
-    await reply('Collecting all new articles by government... Please wait')
+bot.hears('📰 New Articles Shared by Government', async (ctx) => {
+    await ctx.reply('Collecting all new articles by government... Please wait')
     const { documentLinks } = await getData()
     const docTitles = documentLinks.map((doc, index) => `${index + 1}. ${doc.title}`)
-    return reply('Choose an article you wish to read', Extra.markup(
+
+    shouldAcknowledgeAdmin(ctx, '📰 New Articles Shared by Government')
+
+    return ctx.reply('Choose an article you wish to read', Extra.markup(
         Markup.keyboard(docTitles, {
           wrap: (_, index) => (index + 1) / 2
         })
     ))
 })
 
-bot.hears('📖 Read Latest News', async ({ reply, replyWithHTML }) => {
-    await reply('Fetching latest news!')
+bot.hears('📖 Read Latest News', async (ctx) => {
+    await ctx.reply('Fetching latest news!')
     const { articles } = await getNews()
 
     if(articles && articles.length > 0) {
         const url = articles[0].url
-        await replyWithHTML(url)
+        await ctx.replyWithHTML(url)
         await wait(2)
         
-        await reply('Click next to see next news', Extra.HTML().markup((m) =>
+        await ctx.reply('Click next to see next news', Extra.HTML().markup((m) =>
             m.inlineKeyboard([
                 m.callbackButton('Next', '1')
             ])
         ))
     } else {
-        reply('Sorry, cannot find news at the moment. Try again later or report the problem to @AkashRajpurohit')
+        await ctx.reply('Sorry, cannot find news at the moment. Try again later or report the problem to @AkashRajpurohit')
     }
+
+    shouldAcknowledgeAdmin(ctx, '📖 Read Latest News')
 })
 
 bot.hears(/(\d+)/, async ({ replyWithDocument, message, match }) => {
