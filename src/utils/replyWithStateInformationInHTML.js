@@ -9,8 +9,18 @@ module.exports = async (data, reply) => {
             output += `${title[j]}: <b>${data[i][j]}</b> \n\n`
         }
 
+        output += '------------------------------------ \n\n'
+
+        if(i % 6 === 0) {
+            await reply(output)
+            await wait(4)
+            output = ''
+        }
+    }
+
+    if(output !== '') {
         await reply(output)
-        await wait(0.5)
+        await wait(4)
         output = ''
     }
 
