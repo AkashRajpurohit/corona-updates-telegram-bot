@@ -9,6 +9,7 @@ const replyWithStateInformationInHTML = require('./utils/replyWithStateInformati
 const getLatestNews = require('./utils/getLatestNews')
 const addUserToDB = require('./utils/addUserToDB')
 const acknowledgeAdmin = require('./utils/acknowlegdeAdmin')
+const generalErrorMessage = require('./utils/generalErrorMessage')
 const wait = require('./utils/wait')
 
 require('./utils/createDbDir')()
@@ -43,11 +44,11 @@ const getNews = async () => {
 }
 
 const shouldAcknowledgeAdmin = (ctx, command) => {
-    const { message : { chat, from } } = ctx
+    const { message: { chat, from } } = ctx
     const { username, is_bot } = from
     const { id } = chat
 
-    if(id.toString() !== process.env.ADMIN_CHAT_ID && username !== 'AkashRajpurohit') {
+    if (id.toString() !== process.env.ADMIN_CHAT_ID && username !== 'AkashRajpurohit') {
         addUserToDB(username, is_bot)
         acknowledgeAdmin(username, command)
     }
@@ -87,44 +88,59 @@ bot.command('dev', async (ctx) => {
 })
 
 bot.hears('📊 Current Situation in India', async (ctx) => {
-    await ctx.reply('Getting the latest data... Please wait')
-    const { stateData } = await getData()
+    try {
+        await ctx.reply('Getting the latest data... Please wait')
+        const { stateData } = await getData()
 
-    await replyWithStateInformationInHTML(stateData, ctx.replyWithHTML)
+        await replyWithStateInformationInHTML(stateData, ctx.replyWithHTML)
+    } catch (e) {
+        console.log('Error in State Information: ', e)
+        generalErrorMessage(ctx)
+    }
 
     shouldAcknowledgeAdmin(ctx, '📊 Current Situation in India')
 })
 
 bot.hears('📰 New Articles Shared by Government', async (ctx) => {
-    await ctx.reply('Collecting all new articles by government... Please wait')
-    const { documentLinks } = await getData()
-    const docTitles = documentLinks.map((doc, index) => `${index + 1}. ${doc.title}`)
+    try {
+        await ctx.reply('Collecting all new articles by government... Please wait')
+        const { documentLinks } = await getData()
+        const docTitles = documentLinks.map((doc, index) => `${index + 1}. ${doc.title}`)
 
-    shouldAcknowledgeAdmin(ctx, '📰 New Articles Shared by Government')
+        shouldAcknowledgeAdmin(ctx, '📰 New Articles Shared by Government')
 
-    return ctx.reply('Choose an article you wish to read', Extra.markup(
-        Markup.keyboard(docTitles, {
-          wrap: (_, index) => (index + 1) / 2
-        })
-    ))
+        await ctx.reply('Choose an article you wish to read', Extra.markup(
+            Markup.keyboard(docTitles, {
+                wrap: (_, index) => (index + 1) / 2
+            })
+        ))
+    } catch (e) {
+        console.log('Error in getting PDF links: ', e)
+        generalErrorMessage(ctx)
+    }
 })
 
 bot.hears('📖 Read Latest News', async (ctx) => {
-    await ctx.reply('Fetching latest news!')
-    const { articles } = await getNews()
+    try {
+        await ctx.reply('Fetching latest news!')
+        const { articles } = await getNews()
 
-    if(articles && articles.length > 0) {
-        const url = articles[0].url
-        await ctx.replyWithHTML(url)
-        await wait(2)
-        
-        await ctx.reply('Click next to see next news', Extra.HTML().markup((m) =>
-            m.inlineKeyboard([
-                m.callbackButton('Next', '1')
-            ])
-        ))
-    } else {
-        await ctx.reply('Sorry, cannot find news at the moment. Try again later or report the problem to @AkashRajpurohit')
+        if (articles && articles.length > 0) {
+            const url = articles[0].url
+            await ctx.replyWithHTML(url)
+            await wait(2)
+
+            await ctx.reply('Click next to see next news', Extra.HTML().markup((m) =>
+                m.inlineKeyboard([
+                    m.callbackButton('Next', '1')
+                ])
+            ))
+        } else {
+            await ctx.reply('Sorry, cannot find news at the moment. Try again later or report the problem to @AkashRajpurohit')
+        }
+    } catch (e) {
+        console.log('Error in showing news: ', e)
+        generalErrorMessage(ctx)
     }
 
     shouldAcknowledgeAdmin(ctx, '📖 Read Latest News')
@@ -135,38 +151,45 @@ bot.hears(/(\d+)/, async ({ replyWithDocument, message, match }) => {
 
     const msgFromUser = message.text.slice(3).trim()
 
-    if(msgFromUser === "") return
+    if (msgFromUser === "") return
 
     const index = match[0] - 1
 
-    if(documentLinks[index].title === msgFromUser) {
+    if (documentLinks[index].title === msgFromUser) {
         replyWithDocument(documentLinks[index].link)
     }
 })
 
-bot.action(/.+/, async ({ answerCbQuery, reply, replyWithHTML, match }) => { 
-    const articleIndex = parseInt(match[0])
+bot.action(/.+/, async ({ answerCbQuery, reply, replyWithHTML, match }) => {
 
-    await answerCbQuery(`Loading next news`)
+    try {
+        const articleIndex = parseInt(match[0])
 
-    const { articles } = await getNews()
+        await answerCbQuery(`Loading next news`)
 
-    if(articleIndex < articles.length) {
-        const url = articles[articleIndex].url
-        await replyWithHTML(url)
-        await wait(2)
+        const { articles } = await getNews()
 
-        if(articleIndex + 1 < articles.length) {
+        if (articleIndex < articles.length) {
+            const url = articles[articleIndex].url
+            await replyWithHTML(url)
+            await wait(2)
 
-            await reply('Click next to see next news', Extra.HTML().markup((m) =>
-                m.inlineKeyboard([
-                    m.callbackButton('Next', (articleIndex + 1).toString())
-                ])
-            ))
-        } else {
-            await reply('Finished')
+            if (articleIndex + 1 < articles.length) {
+
+                await reply('Click next to see next news', Extra.HTML().markup((m) =>
+                    m.inlineKeyboard([
+                        m.callbackButton('Next', (articleIndex + 1).toString())
+                    ])
+                ))
+            } else {
+                await reply('Finished')
+            }
         }
+    } catch (e) {
+        console.log('Error in showing news: ', e)
+        generalErrorMessage(ctx)
     }
+
 })
 
 bot.catch((err) => console.log(err))
