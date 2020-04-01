@@ -14,7 +14,7 @@ module.exports = async () => {
         const html = await getRawBody(process.env.DATA_BASE_URL)
         const $ = cheerio.load(html)
 
-        const table = $('div.content div.table-responsive table')
+        const table = $('div.data-table table')
 
         const tableHead = $(table).find('thead')
 
@@ -56,7 +56,10 @@ module.exports = async () => {
         $('a').each((_ ,link) => {
             const linkAttr = $(link).attr('href')
             if(isPdfLink(linkAttr)) {
-                const linkTitle = $(link).text().trim()
+                let linkTitle = $(link).text().trim()
+                if(linkTitle.length >= 80) {
+                    linkTitle = linkTitle.slice(0, 80) + '...'
+                }
 
                 allPdfLinksOnPage.push({
                     link: linkAttr,
@@ -66,6 +69,7 @@ module.exports = async () => {
         })
 
         newDocumentPdfLinks = _.uniqBy(allPdfLinksOnPage, 'link')
+        newDocumentPdfLinks = _.uniqBy(newDocumentPdfLinks, 'title')
         
         return {
             stateData,
