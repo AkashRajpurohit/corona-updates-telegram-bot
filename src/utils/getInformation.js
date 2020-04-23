@@ -70,6 +70,10 @@ module.exports = async () => {
 
         newDocumentPdfLinks = _.uniqBy(allPdfLinksOnPage, 'link')
         newDocumentPdfLinks = _.uniqBy(newDocumentPdfLinks, 'title')
+
+        if(newDocumentPdfLinks.length > 100) {
+          newDocumentPdfLinks = newDocumentPdfLinks.slice(0, 100)
+        }
         
         return {
             stateData,
