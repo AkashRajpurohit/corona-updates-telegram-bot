@@ -22,7 +22,7 @@
     "cheerio": "^1.0.0-rc.3",
     "dotenv": "^8.2.0",
     "lodash": "^4.17.19",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "request": "^2.88.2",
     "request-promise": "^4.2.5",
     "telegraf": "^3.36.0"
